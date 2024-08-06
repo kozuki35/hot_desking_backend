@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const bookingSchema = new mongoose.Schema({
+const BookingSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   desk: { type: mongoose.Schema.Types.ObjectId, ref: 'Desk', required: true },
   start_time: { type: Date, required: true },
