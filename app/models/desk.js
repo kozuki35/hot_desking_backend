@@ -7,5 +7,5 @@ const deskSchema = new mongoose.Schema({
   created_at: { type: Date, default: Date.now },
 });
 
-const Desk = mongoose.model('Desk', deskSchema);
+const Desk = mongoose.model('Desk', deskSchema, 'Desk');
 module.exports = Desk;
