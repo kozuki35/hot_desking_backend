@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const bcrypt = require('bcrypt');
 
 /**
  * Register as a new user.
@@ -7,16 +8,19 @@ exports.register = async function (req, res) {
     try {
         const { name, email, password } = req.body;
 
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
         const newUser = new User({
             name: name,
             email: email,
-            password: password,
+            password: hashedPassword,
         });
 
-        await newUser.save(); // Save the new user to the database
+        await newUser.save();
         res.status(201).json({ message: 'Registered successfully', user: newUser });
     } catch (error) {
-        res.status(500).json({ message: 'Error registeration', error: error.message });
+        res.status(500).json({ message: 'Error during registeration', error: error.message });
     }
 }
 

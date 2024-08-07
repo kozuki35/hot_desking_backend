@@ -6,6 +6,7 @@
     "debug": "nodemon --trace-warnings %NODE_DEBUG_OPTION% server.js"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "clear": "^0.1.0",
     "dotenv": "^16.4.5",
