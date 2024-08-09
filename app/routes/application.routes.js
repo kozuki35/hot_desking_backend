@@ -1,11 +1,8 @@
-const users = require('../controllers/users.controller');
+const UserController = require('../controllers/users.controller');
 
 module.exports = function (app) {
-    //Users
-    app.route(app.rootUrl + '/users/sign-up')
-        .post(users.signUp);
-    app.route(app.rootUrl + '/users/login')
-        .post(users.login);
-    app.route(app.rootUrl + '/users/logout')
-        .post(users.logout);
+  //Users
+  app.route(app.rootUrl + '/users/signup').post(UserController.signUp);
+  app.route(app.rootUrl + '/users/login').post(UserController.login);
+  app.route(app.rootUrl + '/users/logout').post(UserController.logout);
 };
