@@ -20,7 +20,13 @@ exports.signUp = async function (req, res) {
     });
 
     await newUser.save();
-    res.status(201).json({ message: 'Signed up successfully', user: newUser });
+
+    // Generate a JWT
+    const token = jwt.sign({ id: newUser._id, email: newUser.email, role: newUser.role }, process.env.JWT_SECRET_KEY, {
+      expiresIn: '1h',
+    });
+
+    res.status(201).json({ message: 'Signed up successfully', user: newUser, token: token });
   } catch (error) {
     res.status(500).json({ message: 'Error during sign up', error: error.message });
   }
