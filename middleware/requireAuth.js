@@ -4,7 +4,11 @@ const user = require('../app/models/user');
 // requireAuth middleware is applied to all routes except /login and /register
 // to prevent unauthenticated users from accessing protected routes
 const requireAuth = async (req, res, next) => {
-  if (req.path === `${process.env.ROOT_RUL}/users/login` || req.path === `${process.env.ROOT_RUL}/users/signup`) {
+  if (
+    req.method === 'OPTIONS' ||
+    req.path === `${process.env.ROOT_RUL}/users/login` ||
+    req.path === `${process.env.ROOT_RUL}/users/signup`
+  ) {
     return next();
   }
   // verify user is authenticated
