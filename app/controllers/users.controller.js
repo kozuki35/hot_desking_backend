@@ -63,7 +63,8 @@ exports.login = async function (req, res) {
       message: 'Login successful',
       user: {
         id: user._id,
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         email: user.email,
         role: user.role,
       },
@@ -85,3 +86,56 @@ exports.logout = async function (req, res) {
     res.status(500).json({ message: 'Error logging out', error: error.message });
   }
 };
+
+/**
+ * Get all users.
+ */
+exports.getAllUsers = async function (req, res) {
+  try {
+    const users = await User.find();
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving users', error: error.message });
+  }
+};
+
+/**
+ * Get a user by ID.
+ */
+exports.getUserById = async function (req, res) {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving user', error: error.message });
+  }
+};
+
+/**
+ * Update a user by ID.
+ */
+exports.updateUserById = async function (req, res) {
+  try {
+    const { role, status } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { role, status },
+      { new: true },
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({ message: 'User updated successfully', user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating user', error: error.message });
+  }
+};
+
