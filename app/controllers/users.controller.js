@@ -54,7 +54,7 @@ exports.login = async function (req, res) {
     }
 
     // Generate a JWT
-    const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, process.env.JWT_SECRET_KEY, {
+    const token = jwt.sign({ _id: user._id, email: user.email, role: user.role }, process.env.JWT_SECRET_KEY, {
       expiresIn: '1h',
     });
 
@@ -117,17 +117,13 @@ exports.getUserById = async function (req, res) {
 };
 
 /**
- * Update a user by ID.
+ * Update a user by ID.(admin)
  */
 exports.updateUserById = async function (req, res) {
   try {
     const { role, status } = req.body;
 
-    const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
-      { role, status },
-      { new: true },
-    );
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, { role, status }, { new: true });
 
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' });
@@ -139,3 +135,99 @@ exports.updateUserById = async function (req, res) {
   }
 };
 
+/**
+ * Get profile (user)
+ */
+exports.getProfile = async (req, res) => {
+  // const user = await User.findById(req.params.id);
+  const { authorization } = req.headers;
+
+  if (!authorization) {
+    return res.status(401).json({ error: 'Authorization token required' });
+  }
+
+  const token = authorization.split(' ')[1];
+
+  try {
+    // verify token
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const { _id } = decodedToken;
+
+    // Check login user against reqeust user, must be the same
+    if (_id !== req.params.id) {
+      return res.status(404).json({ message: 'You can not get others profile.' });
+    }
+
+    // Find the user by ID
+    const userProfile = await User.findById(_id);
+    if (!userProfile) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    res.status(200).json({ message: 'Get profile successfully.', user: userProfile });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error.', error: error.message });
+  }
+};
+
+/**
+ * Update profile by ID.(user)
+ */
+exports.updateProfile = async (req, res) => {
+  const { authorization } = req.headers;
+
+  if (!authorization) {
+    return res.status(401).json({ error: 'Authorization token required' });
+  }
+
+  const token = authorization.split(' ')[1];
+
+  try {
+    // verify token
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const { _id } = decodedToken;
+    const { firstName, lastName, password } = req.body;
+
+    // Check login user against reqeust user, must be the same
+    if (_id !== req.params.id) {
+      return res.status(404).json({ message: 'You can not update others profile.' });
+    }
+
+    // Validate input
+    if (!firstName || !lastName) {
+      return res.status(400).json({ message: 'First name and last name are required.' });
+    }
+
+    // Find the user by ID
+    const userProfile = await User.findById(_id);
+    if (!userProfile) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Update fields
+    userProfile.firstName = firstName;
+    userProfile.lastName = lastName;
+
+    // Hash and update password if provided
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      userProfile.password = await bcrypt.hash(password, salt);
+    }
+
+    // Save the updated user
+    await userProfile.save();
+
+    res.status(200).json({
+      message: 'Profile updated successfully.',
+      user: {
+        id: userProfile._id,
+        firstName: userProfile.firstName,
+        lastName: userProfile.lastName,
+        email: userProfile.email,
+        role: userProfile.role,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error.', error: error.message });
+  }
+};
