@@ -30,7 +30,6 @@ exports.addDesk = async function (req, res) {
  */
 exports.getDesksByStatus = async function (req, res) {
   try {
-    console.log(req);
     const status = req.query.status;
     let desks = undefined;
     if (status.toUpperCase() === 'ALL') {
@@ -109,5 +108,37 @@ exports.updateDeskByCode = async function (req, res) {
     res.status(200).json({ message: `Desk with id '${req.params.id}' updated successfully`, desk: updatedDesk });
   } catch (error) {
     res.status(500).json({ message: 'Error updating desk', error: error.message });
+  }
+};
+
+/**
+ * Get desks booking info
+ */
+exports.getDesksBooking = async function (req, res) {
+  try {
+    const desksBooking = await Desk.aggregate([
+      {
+        $lookup: {
+          from: 'Booking',
+          localField: '_id',
+          foreignField: 'desk',
+          pipeline: [{ $match: { booking_date: req.query.queryDate } }],
+          as: 'bookings',
+        },
+      },
+      {
+        $match: {
+          status: req.query.deskStatus || 'active', // Match by desk status if provided in query
+        },
+      },
+    ]);
+
+    if (desksBooking.length === 0) {
+      return res.status(404).json({ message: `Desks with status: ${req.query.deskStatus} not found` });
+    }
+
+    res.status(200).json(desksBooking);
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving desks booking info', error: error.message });
   }
 };

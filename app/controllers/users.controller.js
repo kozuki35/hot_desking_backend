@@ -92,7 +92,13 @@ exports.logout = async function (req, res) {
  */
 exports.getAllUsers = async function (req, res) {
   try {
-    const users = await User.find();
+    const status = req.query.status;
+    let users = undefined;
+    if (status.toUpperCase() === 'ALL') {
+      users = await User.find();
+    } else {
+      users = await User.find({ status: status });
+    }
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving users', error: error.message });
@@ -121,9 +127,9 @@ exports.getUserById = async function (req, res) {
  */
 exports.updateUserById = async function (req, res) {
   try {
-    const { role, status } = req.body;
+    const { firstName, lastName, role, status } = req.body;
 
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, { role, status }, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, { firstName, lastName, role, status }, { new: true });
 
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' });

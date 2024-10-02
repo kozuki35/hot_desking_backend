@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const requireAuth = require('../middleware/requireAuth');
+const adminRoleCheck = require('../middleware/adminRoleCheck');
 
 const allowCrossOriginRequests = function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
@@ -19,6 +20,7 @@ module.exports = function () {
   // MIDDLEWARE
   app.use(allowCrossOriginRequests);
   app.use(requireAuth);
+  app.use(adminRoleCheck);
   app.use(bodyParser.json());
   app.use(bodyParser.raw({ type: 'text/plain' }));
 
