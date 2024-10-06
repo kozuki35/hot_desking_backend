@@ -13,7 +13,6 @@ module.exports = function (app) {
   app.route(app.rootUrl + '/users/:id').put(UserController.updateUserById);
   app.route(app.rootUrl + '/users/:id/profile').get(UserController.getProfile);
   app.route(app.rootUrl + '/users/:id/profile').put(UserController.updateProfile);
-  app.route(app.rootUrl + '/users/:id/bookings').get(BookingController.getBookingByUserId);
 
   // Desks
   app.route(app.rootUrl + '/desks').get(DeskController.getDesksByStatus);
@@ -23,8 +22,12 @@ module.exports = function (app) {
   app.route(app.rootUrl + '/desks').post(DeskController.addDesk);
 
   // Booking
-  app.route(app.rootUrl + '/bookings').get(BookingController.getBookings);
+  app.route(app.rootUrl + '/bookings').get(BookingController.getBookingsByStatus);
   app.route(app.rootUrl + '/bookings/:id').put(BookingController.updateBooking);
   app.route(app.rootUrl + '/bookings/:id').delete(BookingController.cancelBookingById);
   app.route(app.rootUrl + '/bookings').post(BookingController.addBooking);
+
+  // My Booking
+  app.route(app.rootUrl + '/my-bookings').get(BookingController.getMyBookings);
+  app.route(app.rootUrl + '/my-bookings/:id').put(BookingController.updateMyBooking);
 };

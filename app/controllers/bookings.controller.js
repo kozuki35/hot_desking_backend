@@ -40,29 +40,43 @@ const addBooking = async function (req, res) {
 };
 
 /**
- * Get all bookings of all users.
+ * Get desks.
  */
-const getBookings = async function (req, res) {
+const getBookingsByStatus = async function (req, res) {
   try {
-    const bookings = await Booking.find()
-      .populate('user', 'firstName lastName') // Populating user details
-      .populate('desk', 'code name location'); // Populating desk details
-
+    const status = req.query.status;
+    let bookings = undefined;
+    if (status.toUpperCase() === 'ALL') {
+      bookings = await Booking.find()
+        .populate('user', 'firstName lastName') // Populating user details
+        .populate('desk', 'code name location'); // Populating desk details
+    } else {
+      bookings = await Booking.find({ status: status })
+        .populate('user', 'firstName lastName') // Populating user details
+        .populate('desk', 'code name location'); // Populating desk details
+    }
     res.status(200).json(bookings);
   } catch (error) {
-    console.error('Error fetching bookings:', error);
-    res.status(500).json({ message: 'Error fetching bookings' });
+    res.status(500).json({ message: 'Error retrieving bookings', error: error.message });
   }
 };
 
 
-// Get bookings by user ID
-const getBookingByUserId = async function (req, res) {
+// Get bookings by Logined user ID
+const getMyBookings = async function (req, res) {
   try {
     const userId = req.user._id;
-    const bookings = await Booking.find({ user: userId })
-      .populate('user', 'firstName lastName')
-      .populate('desk', 'code name location');
+    const status = req.query.status;
+    let bookings = undefined;
+    if (status.toUpperCase() === 'ALL') {
+      bookings = await Booking.find({ user: userId })
+        .populate('user', 'firstName lastName') // Populating user details
+        .populate('desk', 'code name location'); // Populating desk details
+    } else {
+      bookings = await Booking.find({ user: userId, status: status })
+        .populate('user', 'firstName lastName') // Populating user details
+        .populate('desk', 'code name location'); // Populating desk details
+    }
 
     res.status(200).json(bookings);
   } catch (error) {
@@ -90,6 +104,30 @@ const updateBooking = async (req, res) => {
   }
 };
 
+
+// Update a self booking
+const updateMyBooking = async (req, res) => {
+  const userId = req.user._id;
+  const { id } = req.params;
+  const { user, desk, booking_date, time_slot, status } = req.body;
+
+  try {
+    const updatedBooking = await Booking.findOneAndUpdate(
+      { _id: id, user: userId },
+      { user, desk, booking_date, time_slot: constructTimeSlot(time_slot.value), status },
+      { new: true },
+    );
+    if(updatedBooking === null) {
+      res.status(404).json({ message: 'Booking for user is not found.' });
+    }else{
+      res.status(200).json(updatedBooking);
+    }
+  } catch (error) {
+    console.error('Error updating booking:', error);
+    res.status(500).json({ message: 'Error updating booking' });
+  }
+};
+
 /**
  * Cancel a booking by ID.
  */
@@ -106,8 +144,9 @@ const cancelBookingById = async function (req, res) {
 // Export all functions consistently
 module.exports = {
   addBooking,
-  getBookings,
-  getBookingByUserId,
+  getBookingsByStatus,
+  getMyBookings,
   updateBooking,
+  updateMyBooking,
   cancelBookingById,
 };
