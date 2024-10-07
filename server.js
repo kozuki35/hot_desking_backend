@@ -1,6 +1,7 @@
 require('dotenv').config();
 const db = require('./config/db');
 const express = require('./config/express');
+const cron = require('./config/cron');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -9,6 +10,7 @@ const port = process.env.PORT || 3000;
 async function testDbConnection() {
   try {
     await db.createDBConnection();
+    cron.archiveBooking();
   } catch (err) {
     console.error(`Unable to connect to MongoDB: ${err.message}`);
     process.exit(1);
