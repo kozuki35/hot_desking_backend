@@ -9,13 +9,21 @@ exports.signUp = async function (req, res) {
   try {
     const { firstName, lastName, email, password } = req.body;
 
+    // Check if the email already exists
+    const existingUser = await User.findOne({ email: email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email address already exists.' });
+    }
+
+    // Hash the password
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+    // Create new user
     const newUser = new User({
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
+      firstName,
+      lastName,
+      email,
       password: hashedPassword,
     });
 
@@ -26,11 +34,12 @@ exports.signUp = async function (req, res) {
       expiresIn: '1h',
     });
 
-    res.status(201).json({ message: 'Signed up successfully', user: newUser, token: token });
+    res.status(201).json({ message: 'Signed up successfully', user: newUser, token });
   } catch (error) {
     res.status(500).json({ message: 'Error during sign up', error: error.message });
   }
 };
+
 
 /**
  * Login as an existing user.
