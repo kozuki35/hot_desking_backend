@@ -40,7 +40,7 @@ const addBooking = async function (req, res) {
 };
 
 /**
- * Get desks.
+ * Get bookings by status.
  */
 const getBookingsByStatus = async function (req, res) {
   try {
@@ -61,8 +61,9 @@ const getBookingsByStatus = async function (req, res) {
   }
 };
 
-
-// Get bookings by Logined user ID
+/**
+ * Get bookings by Logined user ID.
+ */
 const getMyBookings = async function (req, res) {
   try {
     const userId = req.user._id;
@@ -85,8 +86,9 @@ const getMyBookings = async function (req, res) {
   }
 };
 
-
-// Update a booking
+/**
+ * Update a booking
+ */
 const updateBooking = async (req, res) => {
   const { id } = req.params;
   const { user, desk, booking_date, time_slot, status } = req.body;
@@ -104,8 +106,9 @@ const updateBooking = async (req, res) => {
   }
 };
 
-
-// Update a self booking
+/**
+ * Update a self booking
+ */
 const updateMyBooking = async (req, res) => {
   const userId = req.user._id;
   const { id } = req.params;
@@ -117,9 +120,9 @@ const updateMyBooking = async (req, res) => {
       { user, desk, booking_date, time_slot: constructTimeSlot(time_slot.value), status },
       { new: true },
     );
-    if(updatedBooking === null) {
+    if (updatedBooking === null) {
       res.status(404).json({ message: 'Booking for user is not found.' });
-    }else{
+    } else {
       res.status(200).json(updatedBooking);
     }
   } catch (error) {

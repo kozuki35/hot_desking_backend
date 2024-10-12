@@ -1,5 +1,5 @@
 const cron = require('node-cron');
-const { Booking, constructTimeSlot } = require('../app/models/booking');
+const { Booking } = require('../app/models/booking');
 
 exports.archiveBooking = function () {
   // Cron job to archive booking every midnight

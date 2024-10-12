@@ -3,7 +3,7 @@ const Desk = require('../models/desk');
 /**
  * Add a new desk.
  */
-exports.addDesk = async function (req, res) {
+const addDesk = async function (req, res) {
   try {
     const { code, name, description, location, status } = req.body;
 
@@ -32,7 +32,7 @@ exports.addDesk = async function (req, res) {
 /**
  * Get desks.
  */
-exports.getDesksByStatus = async function (req, res) {
+const getDesksByStatus = async function (req, res) {
   try {
     const status = req.query.status;
     let desks = undefined;
@@ -50,7 +50,7 @@ exports.getDesksByStatus = async function (req, res) {
 /**
  * Get a desk by ID.
  */
-exports.getDeskById = async function (req, res) {
+const getDeskById = async function (req, res) {
   try {
     const desk = await Desk.findById(req.params.id);
 
@@ -67,7 +67,7 @@ exports.getDeskById = async function (req, res) {
 /**
  * Get a desk by code.
  */
-exports.getDeskByCode = async function (req, res) {
+const getDeskByCode = async function (req, res) {
   try {
     const desk = await Desk.findOne({ code: req.query.code });
 
@@ -84,7 +84,7 @@ exports.getDeskByCode = async function (req, res) {
 /**
  * Update a desk by ID.
  */
-exports.updateDeskById = async function (req, res) {
+const updateDeskById = async function (req, res) {
   try {
     const updatedDesk = await Desk.findByIdAndUpdate(req.params.id, req.body, { new: true });
 
@@ -101,7 +101,7 @@ exports.updateDeskById = async function (req, res) {
 /**
  * Update a desk by code
  */
-exports.updateDeskByCode = async function (req, res) {
+const updateDeskByCode = async function (req, res) {
   try {
     const updatedDesk = await Desk.findOneAndUpdate({ code: req.query.code }, req.body, { new: true });
 
@@ -118,7 +118,7 @@ exports.updateDeskByCode = async function (req, res) {
 /**
  * Get desks booking info
  */
-exports.getDesksBooking = async function (req, res) {
+const getDesksBooking = async function (req, res) {
   try {
     const desksBooking = await Desk.aggregate([
       {
@@ -145,4 +145,15 @@ exports.getDesksBooking = async function (req, res) {
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving desks booking info', error: error.message });
   }
+};
+
+// Export all functions consistently
+module.exports = {
+  addDesk,
+  getDesksByStatus,
+  getDeskById,
+  getDeskByCode,
+  updateDeskById,
+  updateDeskByCode,
+  getDesksBooking,
 };

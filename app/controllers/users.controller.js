@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 /**
  * Sign up as a new user.
  */
-exports.signUp = async function (req, res) {
+const signUp = async function (req, res) {
   try {
     const { firstName, lastName, email, password } = req.body;
 
@@ -40,11 +40,10 @@ exports.signUp = async function (req, res) {
   }
 };
 
-
 /**
  * Login as an existing user.
  */
-exports.login = async function (req, res) {
+const login = async function (req, res) {
   try {
     const { email, password } = req.body;
 
@@ -87,7 +86,7 @@ exports.login = async function (req, res) {
 /**
  * Logs out the currently authorised user.
  */
-exports.logout = async function (req, res) {
+const logout = async function (req, res) {
   try {
     // On the client side, remove the JWT token from storage
     res.status(200).json({ message: 'Logout successful' });
@@ -99,7 +98,7 @@ exports.logout = async function (req, res) {
 /**
  * Get all users.
  */
-exports.getAllUsers = async function (req, res) {
+const getAllUsers = async function (req, res) {
   try {
     const status = req.query.status;
     let users = undefined;
@@ -117,7 +116,7 @@ exports.getAllUsers = async function (req, res) {
 /**
  * Get a user by ID.
  */
-exports.getUserById = async function (req, res) {
+const getUserById = async function (req, res) {
   try {
     const user = await User.findById(req.params.id);
 
@@ -134,11 +133,15 @@ exports.getUserById = async function (req, res) {
 /**
  * Update a user by ID.(admin)
  */
-exports.updateUserById = async function (req, res) {
+const updateUserById = async function (req, res) {
   try {
     const { firstName, lastName, role, status } = req.body;
 
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, { firstName, lastName, role, status }, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { firstName, lastName, role, status },
+      { new: true },
+    );
 
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' });
@@ -153,7 +156,7 @@ exports.updateUserById = async function (req, res) {
 /**
  * Get profile (user)
  */
-exports.getProfile = async (req, res) => {
+const getProfile = async (req, res) => {
   // const user = await User.findById(req.params.id);
   const { authorization } = req.headers;
 
@@ -188,7 +191,7 @@ exports.getProfile = async (req, res) => {
 /**
  * Update profile by ID.(user)
  */
-exports.updateProfile = async (req, res) => {
+const updateProfile = async (req, res) => {
   const { authorization } = req.headers;
 
   if (!authorization) {
@@ -245,4 +248,16 @@ exports.updateProfile = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Server error.', error: error.message });
   }
+};
+
+// Export all functions consistently
+module.exports = {
+  signUp,
+  login,
+  logout,
+  getAllUsers,
+  getUserById,
+  updateUserById,
+  getProfile,
+  updateProfile,
 };

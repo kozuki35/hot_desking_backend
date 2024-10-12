@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 let db = null;
 
-exports.createDBConnection = async function () {
+const createDBConnection = async function () {
   // MongoDB Atlas connection string from environment variables
   const mongoURI = process.env.MONGODB_URI;
   // Connect to MongoDB Atlas
@@ -15,6 +15,8 @@ exports.createDBConnection = async function () {
   });
 };
 
-exports.getDB = function () {
+const getDB = function () {
   return db;
 };
+
+module.exports = { createDBConnection, getDB };
