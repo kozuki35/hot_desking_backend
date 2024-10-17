@@ -52,8 +52,8 @@ const getBookingsByStatus = async function (req, res) {
         .populate('desk', 'code name location'); // Populating desk details
     } else {
       bookings = await Booking.find({ status: status })
-        .populate('user', 'firstName lastName') // Populating user details
-        .populate('desk', 'code name location'); // Populating desk details
+        .populate('user', 'firstName lastName') 
+        .populate('desk', 'code name location'); 
     }
     res.status(200).json(bookings);
   } catch (error) {
@@ -71,12 +71,12 @@ const getMyBookings = async function (req, res) {
     let bookings = undefined;
     if (status.toUpperCase() === 'ALL') {
       bookings = await Booking.find({ user: userId })
-        .populate('user', 'firstName lastName') // Populating user details
-        .populate('desk', 'code name location'); // Populating desk details
+        .populate('user', 'firstName lastName') 
+        .populate('desk', 'code name location'); 
     } else {
       bookings = await Booking.find({ user: userId, status: status })
-        .populate('user', 'firstName lastName') // Populating user details
-        .populate('desk', 'code name location'); // Populating desk details
+        .populate('user', 'firstName lastName') 
+        .populate('desk', 'code name location'); 
     }
 
     res.status(200).json(bookings);
@@ -92,14 +92,29 @@ const getMyBookings = async function (req, res) {
 const updateBooking = async (req, res) => {
   const { id } = req.params;
   const { user, desk, booking_date, time_slot, status } = req.body;
+  const reqUser = user;
 
   try {
-    const updatedBooking = await Booking.findByIdAndUpdate(
-      id,
-      { user, desk, booking_date, time_slot: constructTimeSlot(time_slot.value), status },
-      { new: true },
-    );
-    res.status(200).json(updatedBooking);
+    // Existing check
+    console.log(req.user, desk, booking_date, time_slot, status)
+    const existOthersActiveBooking = await Booking.findOne({
+      desk: desk,
+      booking_date: booking_date,
+      'time_slot.value': time_slot.value,
+      status: 'active',
+      user: { $ne: reqUser }
+    });
+    console.log(existOthersActiveBooking)
+    if (existOthersActiveBooking) {
+      res.status(400).json({ message: 'Error this time slot is booked by others.' });
+    } else {
+      const updatedBooking = await Booking.findByIdAndUpdate(
+        id,
+        { reqUser, desk, booking_date, time_slot: constructTimeSlot(time_slot.value), status },
+        { new: true },
+      );
+      res.status(200).json(updatedBooking);
+    }
   } catch (error) {
     console.error('Error updating booking:', error);
     res.status(500).json({ message: 'Error updating booking' });
@@ -107,24 +122,40 @@ const updateBooking = async (req, res) => {
 };
 
 /**
- * Update a self booking
+ * Update own booking
  */
 const updateMyBooking = async (req, res) => {
-  const userId = req.user._id;
+  const userId = req.user._id; // Login user
   const { id } = req.params;
   const { user, desk, booking_date, time_slot, status } = req.body;
+  const reqUser = user; // Request booking's related user, sent by front end
 
   try {
-    const updatedBooking = await Booking.findOneAndUpdate(
-      { _id: id, user: userId },
-      { user, desk, booking_date, time_slot: constructTimeSlot(time_slot.value), status },
-      { new: true },
-    );
-    if (updatedBooking === null) {
-      res.status(404).json({ message: 'Booking for user is not found.' });
+    // Existing check
+    const existOthersActiveBooking = await Booking.findOne({
+      desk: desk,
+      booking_date: booking_date,
+      'time_slot.value': time_slot.value,
+      status: 'active',
+      user: { $ne: reqUser }
+    });
+    if (existOthersActiveBooking) {
+      res.status(400).json({ message: 'Error this time slot is booked by others.' });
     } else {
-      res.status(200).json(updatedBooking);
+      const updatedBooking = await Booking.findOneAndUpdate(
+        { _id: id, user: userId }, // use login user here, to verify and update login user's own booking
+        { userId, desk, booking_date, time_slot: constructTimeSlot(time_slot.value), status },
+        { new: true },
+      );
+      if (updatedBooking === null) {
+        res.status(404).json({ message: 'Booking for user is not found.' });
+      } else {
+        res.status(200).json(updatedBooking);
+      }
     }
+
+
+
   } catch (error) {
     console.error('Error updating booking:', error);
     res.status(500).json({ message: 'Error updating booking' });

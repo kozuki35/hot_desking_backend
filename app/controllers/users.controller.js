@@ -156,7 +156,6 @@ const updateUserById = async function (req, res) {
  * Get profile (user)
  */
 const getProfile = async (req, res) => {
-  // const user = await User.findById(req.params.id);
   const { authorization } = req.headers;
 
   if (!authorization) {
