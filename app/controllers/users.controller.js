@@ -54,7 +54,7 @@ const login = async function (req, res) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Compare the provided password with the hashed password in the database
+    // Verify the passwords
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
@@ -66,7 +66,6 @@ const login = async function (req, res) {
       expiresIn: '1h',
     });
 
-    // Return success message along with user data and token
     res.status(200).json({
       message: 'Login successful',
       user: {
@@ -188,55 +187,55 @@ const getProfile = async (req, res) => {
   }
 };
 
-/**
- * Update profile by ID.(user)
- */
-const updateProfile = async (req, res) => {
-  const { authorization } = req.headers;
 
+/**
+ * Update My profile by ID.(user)
+ */
+const updateMyProfile = async (req, res) => {
+  const { authorization } = req.headers;
   if (!authorization) {
     return res.status(401).json({ error: 'Authorization token required' });
   }
-
   const token = authorization.split(' ')[1];
-
   try {
-    // verify token
+    // Verify token
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const { _id } = decodedToken;
-    const { firstName, lastName, password } = req.body;
-
-    // Check login user against reqeust user, must be the same
+    const { firstName, lastName, currentPassword, newPassword } = req.body;
+    // Check if the logged-in user matches the request user
     if (_id !== req.params.id) {
-      return res.status(404).json({ message: 'You can not update others profile.' });
+      return res.status(404).json({ message: "You cannot update others' profiles." });
     }
-
     // Validate input
     if (!firstName || !lastName) {
       return res.status(400).json({ message: 'First name and last name are required.' });
     }
-
     // Find the user by ID
     const userProfile = await User.findById(_id);
     if (!userProfile) {
       return res.status(404).json({ message: 'User not found.' });
     }
-
-    // Update fields
+    // Check if current password is provided and matches
+    if (currentPassword) {
+      const isMatch = await bcrypt.compare(currentPassword, userProfile.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Current password is incorrect.' });
+      }
+    } else if (newPassword) {
+      return res.status(400).json({ message: 'Current password is required to update the password.' });
+    }
+    // Update first and last name
     userProfile.firstName = firstName;
     userProfile.lastName = lastName;
-
-    // Hash and update password if provided
-    if (password) {
+    // Hash and update the new password if provided
+    if (newPassword) {
       const salt = await bcrypt.genSalt(10);
-      userProfile.password = await bcrypt.hash(password, salt);
+      userProfile.password = await bcrypt.hash(newPassword, salt);
     }
-
     // Save the updated user
     await userProfile.save();
-
     res.status(200).json({
-      message: 'Profile updated successfully.',
+      message: "Profile updated successfully.",
       user: {
         id: userProfile._id,
         firstName: userProfile.firstName,
@@ -259,5 +258,5 @@ module.exports = {
   getUserById,
   updateUserById,
   getProfile,
-  updateProfile,
+  updateMyProfile
 };

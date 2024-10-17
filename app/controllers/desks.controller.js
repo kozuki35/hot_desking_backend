@@ -19,12 +19,10 @@ const addDesk = async function (req, res) {
 
     res.status(201).json({ message: `Desk '${newDesk.code}' added successfully`, desk: newDesk });
   } catch (error) {
-    // Check if the error is a duplicate key error
+    // Check desk code
     if (error.code === 11000 && error.keyPattern?.code) {
       return res.status(400).json({ message: 'Desk code already exists. Please choose a different code.' });
     }
-
-    // Handle any other errors
     res.status(500).json({ message: 'Error during adding a new desk', error: error.message });
   }
 };
@@ -132,7 +130,7 @@ const getDesksBooking = async function (req, res) {
       },
       {
         $match: {
-          status: req.query.deskStatus || 'active', // Match by desk status if provided in query
+          status: req.query.deskStatus || 'active', 
         },
       },
     ]);

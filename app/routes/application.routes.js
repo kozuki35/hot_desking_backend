@@ -12,7 +12,6 @@ module.exports = function (app) {
   app.route(app.rootUrl + '/users/:id').get(UserController.getUserById);
   app.route(app.rootUrl + '/users/:id').put(UserController.updateUserById);
   app.route(app.rootUrl + '/users/:id/profile').get(UserController.getProfile);
-  app.route(app.rootUrl + '/users/:id/profile').put(UserController.updateProfile);
 
   // Desks
   app.route(app.rootUrl + '/desks').get(DeskController.getDesksByStatus);
@@ -30,4 +29,7 @@ module.exports = function (app) {
   // My Booking
   app.route(app.rootUrl + '/my-bookings').get(BookingController.getMyBookings);
   app.route(app.rootUrl + '/my-bookings/:id').put(BookingController.updateMyBooking);
+
+  // My Profile
+  app.route(app.rootUrl + '/my-profile/:id').put(UserController.updateMyProfile);
 };
