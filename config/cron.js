@@ -16,7 +16,7 @@ exports.archiveBooking = function () {
 
       // Find all bookings where booking_date is less than today
       const result = await Booking.updateMany(
-        { booking_date: { $lt: today }, status: { $ne: 'archived' } }, // Don't update already archived bookings
+        { booking_date: { $lt: today }, status: 'active' }, // Don't update already archived bookings
         { $set: { status: 'archived' } },
       );
 
