@@ -27,7 +27,7 @@ module.exports = function () {
   // ROUTES
   require('../app/routes/application.routes')(app);
 
-  // DEBUG (you can remove this)
+  // DEBUG 
   app.get('/', function (req, res) {
     res.send({ message: 'Hello World!' });
   });
