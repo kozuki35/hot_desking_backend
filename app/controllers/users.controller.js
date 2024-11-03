@@ -30,11 +30,21 @@ const signUp = async function (req, res) {
     await newUser.save();
 
     // Generate a JWT
-    const token = jwt.sign({ id: newUser._id, email: newUser.email, role: newUser.role }, process.env.JWT_SECRET_KEY, {
+    const token = jwt.sign({ _id: newUser._id, email: newUser.email, role: newUser.role }, process.env.JWT_SECRET_KEY, {
       expiresIn: '1h',
     });
 
-    res.status(201).json({ message: 'Signed up successfully', user: newUser, token });
+    res.status(201).json({
+      message: 'Signed up successfully',
+      user: {
+        id: newUser._id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        role: newUser.role,
+      },
+      token,
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error during sign up', error: error.message });
   }
@@ -186,7 +196,6 @@ const getProfile = async (req, res) => {
   }
 };
 
-
 /**
  * Update My profile by ID.(user)
  */
@@ -234,7 +243,7 @@ const updateMyProfile = async (req, res) => {
     // Save the updated user
     await userProfile.save();
     res.status(200).json({
-      message: "Profile updated successfully.",
+      message: 'Profile updated successfully.',
       user: {
         id: userProfile._id,
         firstName: userProfile.firstName,
@@ -257,5 +266,5 @@ module.exports = {
   getUserById,
   updateUserById,
   getProfile,
-  updateMyProfile
+  updateMyProfile,
 };
