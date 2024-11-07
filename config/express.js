@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const requireAuth = require('../middleware/requireAuth');
 const adminRoleCheck = require('../middleware/adminRoleCheck');
 
+// Allow cross-origin requests
 const allowCrossOriginRequests = function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
   res.header(
@@ -13,6 +14,7 @@ const allowCrossOriginRequests = function (req, res, next) {
   next();
 };
 
+// Export the express app
 module.exports = function () {
   const app = express();
   app.rootUrl = process.env.ROOT_RUL || '/api/v1';

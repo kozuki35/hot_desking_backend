@@ -6,7 +6,7 @@ const { Booking, constructTimeSlot } = require('../models/booking');
 const addBooking = async function (req, res) {
   try {
     const { deskId, bookingDate, timeSlotValues } = req.body;
-
+    // Construct new booking objects
     const newBookings = timeSlotValues.map(
       (value) =>
         new Booking({
@@ -17,7 +17,7 @@ const addBooking = async function (req, res) {
           status: 'active',
         }),
     );
-
+    // Check if the booking already exists
     for (const booking of newBookings) {
       const existBooking = await Booking.findOne({
         user: booking.user,

@@ -118,6 +118,7 @@ const updateDeskByCode = async function (req, res) {
  */
 const getDesksBooking = async function (req, res) {
   try {
+    // Get all desks with booking info for a specific date
     const desksBooking = await Desk.aggregate([
       {
         $lookup: {
@@ -134,7 +135,7 @@ const getDesksBooking = async function (req, res) {
         },
       },
     ]);
-
+    // Check if desks with status found
     if (desksBooking.length === 0) {
       return res.status(404).json({ message: `Desks with status: ${req.query.deskStatus} not found` });
     }
